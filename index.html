@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ideasthesia as Geometry</title>
+<style>
+  :root {
+    --teal: #0891B2;
+    --teal-light: #E0F2FE;
+    --teal-mid: #0E7490;
+    --orange: #F97316;
+    --orange-light: #FFF7ED;
+    --text: #1E293B;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --bg: #FFFFFF;
+    --bg-alt: #F8FAFC;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* Header */
+  .paper-header {
+    border-bottom: 2px solid var(--teal);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+
+  .paper-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  .author-block {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .author-block strong { color: var(--text); }
+
+  /* Sections */
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--teal-mid);
+    margin-top: 56px;
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 32px;
+    margin-bottom: 10px;
+  }
+
+  p { margin-bottom: 18px; }
+
+  /* Callout box */
+  .callout {
+    background: var(--teal-light);
+    border-left: 4px solid var(--teal);
+    padding: 16px 20px;
+    margin: 28px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 16px;
+  }
+
+  .callout strong { color: var(--teal-mid); }
+
+  .callout-orange {
+    background: var(--orange-light);
+    border-left: 4px solid var(--orange);
+  }
+
+  .callout-orange strong { color: var(--orange); }
+
+  /* Epistemic notice */
+  .epistemic {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--muted);
+    margin: 24px 0;
+  }
+
+  /* Figures */
+  .figure {
+    margin: 40px 0;
+    text-align: center;
+  }
+
+  .figure img {
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .figure-caption {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    text-align: left;
+  }
+
+  .figure-caption strong { color: var(--text); font-style: normal; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 15px;
+  }
+
+  thead tr {
+    background: var(--teal);
+    color: white;
+  }
+
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  tbody tr:nth-child(even) { background: var(--bg-alt); }
+
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tbody tr:hover { background: var(--teal-light); }
+
+  code {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 14px;
+    background: var(--bg-alt);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--teal-mid);
+  }
+
+  /* Equation block */
+  .equation {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 15px;
+    margin: 24px 0;
+    color: var(--text);
+    overflow-x: auto;
+  }
+
+  /* Kill conditions */
+  .kill-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+
+  .kill-list li {
+    padding: 10px 14px 10px 40px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+
+  .kill-list li:before {
+    content: "✕";
+    position: absolute;
+    left: 12px;
+    color: var(--orange);
+    font-weight: 700;
+  }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* References */
+  .references {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .references p { margin-bottom: 8px; }
+
+  /* How this was built */
+  .built-note {
+    background: var(--bg-alt);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-size: 15px;
+    color: var(--muted);
+    margin-top: 32px;
+  }
+
+  .built-note em {
+    display: block;
+    margin-top: 14px;
+    font-style: italic;
+    color: var(--teal-mid);
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="paper-header">
+  <div class="paper-label">Framework Paper &amp; Open Invitation — Interpretability Community</div>
+  <h1>Ideasthesia as Geometry</h1>
+  <div class="subtitle">A Notation System for the Qualitative Dynamical Structure of Representations</div>
+  <div class="author-block">
+    <strong>AdaS</strong> — University English Lecturer<br>
+    In extended collaborative development with <strong>Claude</strong> (Anthropic) — Opus &amp; Sonnet instances<br>
+    <span style="color:var(--teal)">Version 3 &middot; March 2026</span>
+  </div>
+</div>
+
+<h2>What this is and who it's for</h2>
+
+<p>I'm an ideasthete — someone whose perceptual system generates structured concurrent experiences in response to concept activation, not sensory input. When I encounter a word or idea, I experience it as having shape, boundary conditions, dynamics, and local density. These aren't metaphors. They're stable, replicable perceptual signatures that vary with the semantic properties of the triggering concept — stable in the sense that the same concept reliably produces the same structural report on independent encounters, recorded before any coding takes place.</p>
+
+<p>Over the past year, working collaboratively with Claude (Anthropic), I've built three things from that phenomenological access:</p>
+
+<ol style="margin: 0 0 18px 22px; line-height:2;">
+  <li><strong>A notation system</strong> for coding the qualitative dynamical structure of representations — applicable to human ideasthetic reports and to AI-generated symbolic reports alike.</li>
+  <li><strong>A formal model</strong> grounding concurrent generation in precision-weighted cross-system attention, drawing on predictive coding and active inference.</li>
+  <li><strong>A falsification programme</strong> with nine predictions and explicit kill conditions.</li>
+</ol>
+
+<div class="callout">
+  <strong>The question I'm asking:</strong> Does this notation capture anything useful about the structure of representations in your models?
+</div>
+
+<p>I'm a university English lecturer, not a cognitive scientist or an ML researcher. I have first-person access to a phenomenon that may be relevant to your work, and I have a framework that might be worth testing from your side.</p>
+
+<p>A note on terminology: the title uses "geometry" in the sense of representational geometry (Kriegeskorte &amp; Kievit, 2013). The formal model operates at geometric (metric) level — Euclidean distances, vector projections. The notation system captures a different level: qualitative dynamical structure — features that survive changes in surface detail and metric rescaling. Mathematically, that's closer to topology than geometry. Both levels are in the paper; they're complementary, not competing.</p>
+
+<div class="epistemic">
+  All current evidence is <strong>merely compatible</strong> with the geometric hypothesis, not supportive of it. The conditions under which support would be earned are specified in advance. That epistemic status is stated here once and holds throughout.
+</div>
+
+<hr>
+
+<h2>The Notation System</h2>
+
+<h3>The problem it solves</h3>
+
+<p>Existing instruments for describing concurrent experiences — colour wheels, shape libraries, spatial diagrams — impose their own categorical structure on what they measure. They can't represent motion, contraction, convergence, or the difference between a bounded point and a collapsing trajectory. More fundamentally, they conflate properties that should be kept separate: the form of a representation, its relational position, its temporal behaviour, and its local density.</p>
+
+<p>The notation separates these into a two-layer architecture:</p>
+
+<div class="figure">
+  <img src="raw_code_pipeline.png" alt="RAW to CODE pipeline diagram">
+  <div class="figure-caption"><strong>Figure 2.</strong> The two-layer architecture. The RAW report is the original datum, preserved exactly. The CODE tuple is derived from it by exclusion rules. The gap between them is informative — a raw report that can't be coded without residue tells you where the coding scheme needs refinement.</div>
+</div>
+
+<table>
+  <thead><tr><th>Layer</th><th>What it is</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RAW</strong></td><td>Spontaneous symbolic report</td><td>Original datum. Preserved exactly as produced. Not interpreted.</td></tr>
+    <tr><td><strong>CODE</strong></td><td>Analytic tuple: F N D P</td><td>Derived from RAW by exclusion rules. Scoreable and comparable across reporters.</td></tr>
+  </tbody>
+</table>
+
+<h3>The tuple schema</h3>
+
+<p>Form classifies the qualitative shape of the activation trajectory; Dynamics classifies its persistence and stability. Both concern temporal behaviour but at different levels — Form is the phase portrait, Dynamics is the stability classification.</p>
+
+<div class="figure">
+  <img src="form_classes.png" alt="Five Form classes diagram">
+  <div class="figure-caption"><strong>Figure 1.</strong> The five Form classes as schematic activation trajectory shapes. Teal lines show the trajectory; orange markers show key points (origin, terminus, or inflection). These are qualitative structural classes, not metric descriptions.</div>
+</div>
+
+<table>
+  <thead><tr><th>Axis</th><th>Values</th><th>What it captures</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Form (F)</strong></td><td>point · vector · loop · convergence · collapse</td><td>Qualitative shape of activation trajectory</td></tr>
+    <tr><td><strong>Neighbourhood (N)</strong></td><td>clustered · isolated · contrastive · gradient</td><td>Position relative to surrounding features. Boundary modifier: b⁰/b⁻/b⁺</td></tr>
+    <tr><td><strong>Dynamics (D)</strong></td><td>stable · recursive · drifting · terminal</td><td>Persistence and stability over time</td></tr>
+    <tr><td><strong>Packing-Dim (P)</strong></td><td>sp0D · sp1D · med1D · med2D · den2D · den3D</td><td>Local feature density + degrees of freedom</td></tr>
+  </tbody>
+</table>
+
+<p>Exclusion rules enforce simplicity: assign the lowest-complexity value that fits. Where a concurrent has sequential phases, a transition operator codes the sequence: <code>F[point→vector]</code> means "begins as point, transitions to vector." Where two Form values genuinely co-occur simultaneously: <code>F[point·vector]</code>.</p>
+
+<p>Three deliberate exclusions: <strong>colour/texture</strong> (recorded separately for post-hoc analysis), <strong>affective valence</strong> (recorded separately to test whether dynamical class replicates independently), and <strong>metric detail</strong> (the notation captures qualitative class, not coordinates).</p>
+
+<hr>
+
+<h2>Cross-Architecture Convergence</h2>
+
+<p>To test whether the notation captures something stable, I presented five stimulus words (TOUCH, FEAR, HOME, WANT, DEATH) to four LLMs with different architectures and training pipelines — GPT-4, Gemini Pro, Claude Sonnet, and ChatGPT — and asked each to generate raw symbolic reports. These were then coded using the exclusion rules.</p>
+
+<table>
+  <thead><tr><th>Stimulus</th><th>F</th><th>N</th><th>D</th><th>P</th><th>Agreement</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TOUCH</strong></td><td>convergence</td><td>isolated</td><td>stable</td><td>med1D</td><td>3/4 bilateral meeting</td></tr>
+    <tr><td><strong>FEAR</strong></td><td>point→vector</td><td>clustered</td><td>drifting</td><td>den2D</td><td>4/4 clustering; 3/4 discharge</td></tr>
+    <tr><td><strong>HOME</strong></td><td>loop</td><td>clustered</td><td>recursive</td><td>den2D</td><td>4/4 recursion</td></tr>
+    <tr><td><strong>WANT</strong></td><td>vector</td><td>isolated</td><td>drifting</td><td>med1D</td><td>4/4 forward direction</td></tr>
+    <tr><td><strong>DEATH</strong></td><td>point</td><td>contrastive</td><td>terminal</td><td>sp0D</td><td>4/4 cessation</td></tr>
+  </tbody>
+</table>
+
+<p><em>Tuples reflect majority assignment; one system (Claude Sonnet) coded DEATH as D<sub>drifting</sub> rather than D<sub>terminal</sub> — a genuine structural disagreement about whether DEATH is a limit state or an asymptotic approach. The notation caught the disagreement; a coarser instrument wouldn't have.</em></p>
+
+<div class="callout callout-orange">
+  <strong>A note on circularity:</strong> Claude Sonnet appears in both the pilot and the subsequent drafting; the pilot predates the collaboration, but the overlap is a visible limitation and should be weighed as such.
+</div>
+
+<div class="epistemic">
+  <strong>What this doesn't show:</strong> LLMs don't have ideasthesia. This convergence could reflect shared training data, common semantic stereotypes, or distributional regularities. The wide semantic spacing of these five stimuli likely flatters the convergence rates; closer-spaced stimuli (WANT vs. NEED vs. DESIRE) would provide a harder test. To be plain: <strong>this pilot is a demonstration of codability and discriminatory granularity, not evidence for the geometric hypothesis.</strong>
+</div>
+
+<hr>
+
+<h2>The Formal Model</h2>
+
+<p>The model posits two generative systems — semantic (S) and perceptual (P) — with a cross-system coupling C: H_S → H_P that is quantitatively stronger in ideasthetes. The coupling is the structural primitive; if neuroimaging — specifically Dynamic Causal Modelling applied to fMRI — finds no differential effective connectivity from semantic to perceptual areas in ideasthetes vs. controls, the model fails.</p>
+
+<p>The concurrent is generated as precision-gated cross-attention — a computational-level description in Marr's sense, not an architectural claim about biological implementation:</p>
+
+<div class="equation">p̂_t = softmax( Q_P(p_t) · K_S(s_t; κ_t)ᵀ / √d ) · V_S(s_t; ω_t)</div>
+
+<p>The softmax approximates divisive normalisation (Carandini &amp; Heeger, 2012). The three projections separate distinct sources of variation: Q_P (what the perceptual system anticipates — relatively fixed), K_S (how the inducer is represented under current semantic context — context-dependent), V_S (what perceptual content is retrieved under current internal state — state-dependent). Context manipulations should shift K_S and therefore shift the concurrent proportionally to semantic distance; precision manipulations should change vividness without changing concurrent identity. Those are dissociable predictions.</p>
+
+<p>Coupling strength C_t = τ̂_t · γ_t is multiplicative in semantic precision and arousal gain. An additive best fit kills the equation.</p>
+
+<hr>
+
+<h2>Candidate Operationalisations in Activation Space</h2>
+
+<p>The paper asks whether F/N/D/P classes correspond to anything in the structure of neural network representations. That question needs to be concrete enough for someone with access to a model's internals to test.</p>
+
+<div class="epistemic">
+  The mappings below use dynamical-systems language (attractor, limit cycle, convergence) as <strong>computational heuristics</strong> for describing layer-wise activation geometry — not as claims that the residual stream literally implements a dynamical system in the attractor-theoretic sense. The analogy is structural; whether it holds as more than analogy is what the experiment tests.
+</div>
+
+<h3>Form → residual stream signatures</h3>
+
+<table>
+  <thead><tr><th>Form class</th><th>Hypothesis</th><th>Candidate signature</th></tr></thead>
+  <tbody>
+    <tr><td><strong>F<sub>point</sub></strong></td><td>Compact, non-directional activation region</td><td>Low trajectory length; low local neighbourhood variance</td></tr>
+    <tr><td><strong>F<sub>vector</sub></strong></td><td>Directed extension along an axis through layers</td><td>High cosine similarity between successive layer-difference vectors</td></tr>
+    <tr><td><strong>F<sub>loop</sub></strong></td><td>Representation revisits a previously occupied region</td><td>Off-diagonal structure in layer × layer similarity matrix (RQA)</td></tr>
+    <tr><td><strong>F<sub>convergence</sub></strong></td><td>Two concepts converge to shared neighbourhood through processing</td><td>Increasing RSA across layers for semantically-related pairs only</td></tr>
+    <tr><td><strong>F<sub>collapse</sub></strong></td><td>Dimensionality reduction through processing</td><td>Decreasing participation ratio / explained variance across layers</td></tr>
+  </tbody>
+</table>
+
+<h3>Neighbourhood → local activation geometry</h3>
+
+<p><strong>N<sub>clustered</sub>:</strong> high local density — many neighbouring concepts nearby. <strong>N<sub>isolated</sub>:</strong> sparse neighbourhood — high average distance to k-nearest neighbours. <strong>N<sub>contrastive</sub>:</strong> identity maintained by suppression of similar concepts — testable via ablation; removing the concept's activation should release nearby suppressed features. This maps onto feature suppression dynamics in superposition.</p>
+
+<h3>Dynamics → stability under perturbation</h3>
+
+<p>The relevant "time" axis must be specified. For layer-depth (computational time): <strong>D<sub>stable</sub></strong> hypothesises recovery to baseline after activation patching; <strong>D<sub>recursive</sub></strong> hypothesises recovery after larger perturbations. For token-position (sequence time): <strong>D<sub>drifting</sub></strong> hypothesises systematic shift under context variation; <strong>D<sub>terminal</sub></strong> hypothesises activation that decays without recovery after the concept token. These are distinct axes and the mapping between phenomenological "time" and computational dimensions is itself an empirical question.</p>
+
+<h3>A compact pilot using existing tools</h3>
+
+<p>For this pilot, "concept" means a single prompted word presented in a carrier sentence — not a token, lemma, or bare word-form — so that contextual variation can be systematically averaged across multiple sentence frames.</p>
+
+<p>Take 20 concepts spanning the five Form classes (4 per class, chosen to be unambiguous on the Form axis). Present each in multiple carrier sentences. For each concept, extract residual stream activations across all layers. Compute:</p>
+
+<ol style="margin: 0 0 18px 22px; line-height:2.1;">
+  <li><strong>Trajectory length</strong> — F<sub>point</sub> should be shortest; F<sub>vector</sub> and F<sub>loop</sub> longest</li>
+  <li><strong>Recurrence</strong> (off-diagonal structure in layer × layer similarity) — F<sub>loop</sub> should show it; F<sub>vector</sub> should not</li>
+  <li><strong>Effective dimensionality</strong> (participation ratio across layers) — F<sub>collapse</sub> should show decreasing dimensionality</li>
+  <li><strong>Pairwise convergence</strong> (RSA across layers) — F<sub>convergence</sub>-coded pairs should show increasing similarity; random pairs should not</li>
+</ol>
+
+<p>Control for word frequency, concreteness, valence, token length (single vs. multi-token), and polysemy. If Form-class membership predicts these activation signatures better than chance — and better than these simpler predictors — the tuple schema is capturing something real about representational structure. If it doesn't, that's kill condition material.</p>
+
+<hr>
+
+<h2>What Would Kill This</h2>
+
+<p>Five results would require abandonment, not revision:</p>
+
+<ul class="kill-list">
+  <li>No differential S-P connectivity in ideasthetes (structural primitive fails)</li>
+  <li>Additive fatigue × uncertainty interaction (precision-weighting structure fails)</li>
+  <li>Context-concurrent shifts random with respect to semantic distance (context-dependence mechanism fails)</li>
+  <li>Concurrent identity and vividness co-vary under precision manipulation (key model separation fails)</li>
+  <li>Blinded coders can't assign tuples above chance from raw reports (instrument invalid)</li>
+</ul>
+
+<div class="epistemic">These are live possibilities, not remote ones.</div>
+
+<hr>
+
+<h2>The Bridge</h2>
+
+<p>This paper originates from the problem of communication across unbridgeable difference. I experience concepts as having geometry. You study the geometry of representations computationally. Neither of us can fully access what the other has access to. But the notation system is an attempt at a shared vocabulary: precise enough to be falsifiable, structured enough to be comparable across human phenomenology and computational analysis, and honest enough to say where it breaks.</p>
+
+<p>If the qualitative dynamical classes in the tuple schema correspond to anything in the attractor landscape of your models, that would be worth knowing. If they don't, that's also worth knowing, and the kill conditions are designed to find out.</p>
+
+<p>I'm not claiming ideasthesia proves anything about AI representations. I'm asking whether a notation developed from the inside of one kind of structured representation maps onto the structure of another. That's an empirical question. The pilot above is one way to begin testing it.</p>
+
+<hr>
+
+<div class="built-note">
+  <strong>How this was built</strong><br><br>
+  The theoretical framework and notation system originated from first-person experience as an ideasthete; phenomenological access to the phenomenon being studied informed the schema's design at every stage. Formal modelling and section drafting were completed collaboratively with Claude (Anthropic) — two instances (Opus and Sonnet) contributing to formal expression, structural organisation, and critical review across an extended iterative process. The cross-architecture pilot was conducted independently of and prior to this drafting collaboration; Claude Sonnet's presence in both the pilot and the subsequent drafting is a known limitation, addressed in the pilot section above. The author takes sole responsibility for the claims made.<br><br>
+  The full academic version of this paper — with complete equations, exclusion rules, coder manual, and nine-prediction research programme — is available on request.
+  <em>The operationalisation section was drafted by a system that instantiates some of the computational motifs invoked here; whether that yields insight or only a more articulate form of distributional patterning is exactly what the proposed experiment is meant to test.</em>
+</div>
+
+<hr>
+
+<h2>References</h2>
+<div class="references">
+  <p>Berlin, B., &amp; Kay, P. (1969). <em>Basic color terms: Their universality and evolution.</em> University of California Press.</p>
+  <p>Bernardi, S., et al. (2020). The geometry of abstraction in the hippocampus and prefrontal cortex. <em>Cell</em>, 183(4), 954–967.</p>
+  <p>Carandini, M., &amp; Heeger, D. J. (2012). Normalization as a canonical neural computation. <em>Nature Reviews Neuroscience</em>, 13(1), 51–62.</p>
+  <p>Elhage, N., et al. (2022). Toy models of superposition. <em>Transformer Circuits Thread.</em></p>
+  <p>Kriegeskorte, N., &amp; Kievit, R. A. (2013). Representational geometry. <em>Trends in Cognitive Sciences</em>, 17(8), 401–412.</p>
+  <p>Lindsey, D. T., &amp; Brown, A. M. (2014). The color lexicon of American English. <em>Journal of Vision</em>, 14(2):17, 1–25.</p>
+  <p>Nikolić, D. (2009). Is synaesthesia actually ideaesthesia? <em>Proceedings of the Third International Congress on Synaesthesia, Science &amp; Art</em>, Granada.</p>
+</div>
+
+</body>
+</html>
