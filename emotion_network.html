@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +18,6 @@
   }
   canvas:active { cursor:grabbing; }
 
-  /* CSS2D labels */
   .emotion-label {
     pointer-events:none;
     user-select:none;
@@ -40,12 +38,16 @@
     color:#0891B2;
     box-shadow:0 1px 6px rgba(0,0,0,0.07);
   }
+  /* dual-pair indicator on label */
+  .emotion-label .name.dual-pair {
+    border-width:2px;
+    box-shadow:0 0 0 2px rgba(249,115,22,0.35), 0 1px 6px rgba(0,0,0,0.07);
+  }
   .emotion-label.neg-high .name  { color:#F97316; border-color:rgba(249,115,22,0.25); }
   .emotion-label.pos-high .name  { color:#0891B2; border-color:rgba(8,145,178,0.25); }
   .emotion-label.pos-low .name   { color:#0E7490; border-color:rgba(14,116,144,0.2); }
   .emotion-label.neg-low .name   { color:#065F73; border-color:rgba(6,95,115,0.2); }
 
-  /* Tooltip on hover */
   #tooltip {
     position:absolute;
     pointer-events:none;
@@ -58,7 +60,7 @@
     box-shadow:0 4px 16px rgba(0,0,0,0.09);
     font-size:12px;
     line-height:1.7;
-    max-width:220px;
+    max-width:240px;
     z-index:100;
   }
   #tooltip .tt-name {
@@ -68,13 +70,19 @@
     margin-bottom:4px;
     display:block;
   }
+  #tooltip .tt-dual {
+    font-size:10px;
+    font-weight:500;
+    color:#F97316;
+    margin-bottom:4px;
+    display:none;
+  }
   #tooltip.neg-high .tt-name { color:#F97316; }
   #tooltip.neg-low  .tt-name { color:#065F73; }
   #tooltip.pos-low  .tt-name { color:#0E7490; }
   #tooltip .tt-row  { color:#555; }
   #tooltip .tt-key  { color:#888; font-size:11px; margin-right:4px; }
 
-  /* UI panels */
   .ui-panel {
     position:absolute;
     background:rgba(245,243,238,0.85);
@@ -90,7 +98,7 @@
   #instructions {
     top:20px; left:20px;
     font-size:12px; line-height:1.7;
-    max-width:210px;
+    max-width:220px;
   }
   #instructions strong {
     display:block; font-weight:600;
@@ -115,21 +123,30 @@
   .btn:hover { background:rgba(8,145,178,0.08); border-color:rgba(8,145,178,0.55); }
   .btn:active { background:rgba(8,145,178,0.15); }
 
-  /* Legend */
   #legend {
     top:20px; right:20px;
     font-size:11px; line-height:1.8;
-    min-width:160px;
+    min-width:180px;
   }
   #legend strong {
     display:block; font-weight:600;
     font-size:12px; margin-bottom:6px;
     color:#444;
   }
-  .legend-row { display:flex; align-items:center; gap:8px; color:#555; }
+  .legend-row { display:flex; align-items:center; gap:8px; color:#555; margin-bottom:2px; }
   .legend-dot {
     width:9px; height:9px; border-radius:50%;
     flex-shrink:0;
+  }
+  .legend-dual {
+    display:flex; align-items:center; gap:8px;
+    color:#F97316; font-size:10px; margin-top:6px;
+    border-top:1px solid rgba(8,145,178,0.12);
+    padding-top:6px;
+  }
+  .legend-ring {
+    width:9px; height:9px; border-radius:50%;
+    border:2px solid #F97316; flex-shrink:0;
   }
 </style>
 </head>
@@ -137,7 +154,8 @@
 
 <div id="instructions" class="ui-panel">
   <strong>Emotion Network</strong>
-  <span>Hover a named node to see its tuple.<br>Click any node to pulse along its connections.<br>Drag to rotate.</span>
+  <span>Hover a named node to see its tuple (F, N, b, D, P).<br>
+  Click any node to pulse along its connections.<br>Drag to rotate.</span>
 </div>
 
 <div id="legend" class="ui-panel">
@@ -146,6 +164,7 @@
   <div class="legend-row"><div class="legend-dot" style="background:#0891B2"></div>pos · high arousal</div>
   <div class="legend-row"><div class="legend-dot" style="background:#94C5D0"></div>pos · low arousal</div>
   <div class="legend-row"><div class="legend-dot" style="background:#065F73"></div>neg · low arousal</div>
+  <div class="legend-dual"><div class="legend-ring"></div>appears in two pairs</div>
 </div>
 
 <div id="controls" class="ui-panel">
@@ -155,8 +174,12 @@
 
 <div id="tooltip">
   <span class="tt-name" id="tt-name"></span>
+  <span class="tt-dual" id="tt-dual">appears in two pair-relations</span>
   <div class="tt-row"><span class="tt-key">F</span><span id="tt-f"></span></div>
+  <div class="tt-row"><span class="tt-key">N</span><span id="tt-n"></span></div>
+  <div class="tt-row"><span class="tt-key">b</span><span id="tt-b"></span></div>
   <div class="tt-row"><span class="tt-key">D</span><span id="tt-d"></span></div>
+  <div class="tt-row"><span class="tt-key">P</span><span id="tt-p"></span></div>
   <div class="tt-row"><span class="tt-key">Quadrant</span><span id="tt-q"></span></div>
 </div>
 
@@ -180,41 +203,42 @@ import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass }      from 'three/addons/postprocessing/OutputPass.js';
 
-// ─── Emotion data: 6 pairs on 6 axes ─────────────────────────────────────────
-// Each pair: two emotions at opposite ends of a radial axis
-// quadrant: neg-high | pos-high | pos-low | neg-low
+// ─── Canonical PAIRS — v0.5, April 2026 ──────────────────────────────────────
+// Six pairs the valence/arousal circumplex conflates; the tuple schema separates.
+// FEAR appears in pairs 1 and 5 (dual:true). Both instances share the same tuple.
+// Visual indicator: ring halo on both FEAR nodes; legend entry explains it.
 const PAIRS = [
   {
-    a: { name:'fear',        F:'point-vector', D:'drifting',        quadrant:'neg-high' },
-    b: { name:'anxiety',     F:'loop',         D:'recursive',       quadrant:'neg-high' }
+    a: { name:'fear',        F:'vector',  N:'clustered',   b:'~', D:'drifting',  P:'den2D', quadrant:'neg-high', dual:true  },
+    b: { name:'anxiety',     F:'loop',    N:'clustered',   b:'~', D:'recursive', P:'den2D', quadrant:'neg-high', dual:false }
   },
   {
-    a: { name:'terrified',   F:'convergence',  D:'stable',          quadrant:'neg-high' },
-    b: { name:'panicked',    F:'collapse',     D:'drifting',        quadrant:'neg-high' }
+    a: { name:'terrified',   F:'point',   N:'contrastive', b:'#', D:'stable',    P:'med1D', quadrant:'neg-high', dual:false },
+    b: { name:'panicked',    F:'collapse',N:'clustered',   b:'~', D:'drifting',  P:'den2D', quadrant:'neg-high', dual:false }
   },
   {
-    a: { name:'joy',         F:'loop',         D:'stable-recursive',quadrant:'pos-high' },
-    b: { name:'excitement',  F:'vector',       D:'drifting',        quadrant:'pos-high' }
+    a: { name:'joy',         F:'loop',    N:'clustered',   b:'∅', D:'recursive', P:'med2D', quadrant:'pos-high', dual:false },
+    b: { name:'excitement',  F:'vector',  N:'clustered',   b:'∅', D:'drifting',  P:'med2D', quadrant:'pos-high', dual:false }
   },
   {
-    a: { name:'content',     F:'point',        D:'stable',          quadrant:'pos-low'  },
-    b: { name:'peaceful',    F:'gradient',     D:'stable',          quadrant:'pos-low'  }
+    a: { name:'content',     F:'point',   N:'isolated',    b:'∅', D:'stable',    P:'sp1D',  quadrant:'pos-low',  dual:false },
+    b: { name:'peaceful',    F:'point',   N:'gradient',    b:'∅', D:'stable',    P:'sp1D',  quadrant:'pos-low',  dual:false }
   },
   {
-    a: { name:'desperation', F:'collapse',     D:'terminal',        quadrant:'neg-high' },
-    b: { name:'grief',       F:'loop',         D:'recursive',       quadrant:'neg-low'  }
+    a: { name:'desperation', F:'collapse',N:'contrastive', b:'#', D:'terminal',  P:'den2D', quadrant:'neg-high', dual:false },
+    b: { name:'fear',        F:'vector',  N:'clustered',   b:'~', D:'drifting',  P:'den2D', quadrant:'neg-high', dual:true  }
   },
   {
-    a: { name:'sadness',     F:'point',        D:'stable-drifting', quadrant:'neg-low'  },
-    b: { name:'melancholy',  F:'loop',         D:'drifting',        quadrant:'neg-low'  }
+    a: { name:'grief',       F:'loop',    N:'clustered',   b:'~', D:'recursive', P:'den2D', quadrant:'neg-low',  dual:false },
+    b: { name:'sadness',     F:'point',   N:'isolated',    b:'∅', D:'stable',    P:'med1D', quadrant:'neg-low',  dual:false }
   }
 ];
 
 const QUAD_COLOR = {
-  'neg-high': new THREE.Color(0xF97316),  // orange
-  'pos-high': new THREE.Color(0x0891B2),  // teal
-  'pos-low':  new THREE.Color(0x94C5D0),  // teal light
-  'neg-low':  new THREE.Color(0x065F73),  // teal dark
+  'neg-high': new THREE.Color(0xF97316),
+  'pos-high': new THREE.Color(0x0891B2),
+  'pos-low':  new THREE.Color(0x94C5D0),
+  'neg-low':  new THREE.Color(0x065F73),
 };
 const QUAD_LABEL = {
   'neg-high': 'negative · high arousal',
@@ -233,7 +257,6 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.setClearColor(BG);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// CSS2D overlay for labels
 const labelRenderer = new CSS2DRenderer();
 labelRenderer.setSize(innerWidth, innerHeight);
 labelRenderer.domElement.style.position = 'absolute';
@@ -259,7 +282,6 @@ controls.autoRotate = true;
 controls.autoRotateSpeed = 0.18;
 controls.enablePan = false;
 
-// Post-processing — very mild bloom, light bg
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.22, 0.45, 0.94);
@@ -272,10 +294,9 @@ class Node {
     this.position    = pos;
     this.connections = [];
     this.level       = level;
-    this.emotion     = emotionData;   // null for structural nodes
+    this.emotion     = emotionData;
     this.size        = emotionData ? 1.4 : (level===0 ? 1.6 : THREE.MathUtils.randFloat(0.4,0.85));
     this.distanceFromRoot = 0;
-    this.labelObj    = null;
   }
   connect(other, strength=1.0) {
     if (!this.connections.some(c => c.node===other)) {
@@ -285,18 +306,16 @@ class Node {
   }
 }
 
-// ─── Build sphere with 6 semantic axes ────────────────────────────────────────
+// ─── Build sphere ─────────────────────────────────────────────────────────────
 function buildSphere() {
   const nodes = [];
   const root  = new Node(new THREE.Vector3(0,0,0), 0);
   nodes.push(root);
 
-  const AXIS_LEN    = 19;
+  const AXIS_LEN       = 19;
   const NODES_PER_AXIS = 7;
-  const axisEnds    = [];   // [{nodeA, nodeB}] — the 12 anchor emotion nodes
-  const axisEndNodes = [];  // flat list of all 12
+  const axisEndNodes   = [];
 
-  // 6 axes, evenly distributed on sphere via golden angle
   for (let a=0; a<6; a++) {
     const phi   = Math.acos(-1 + (2*a)/6);
     const theta = Math.PI * (1 + Math.sqrt(5)) * a;
@@ -307,48 +326,35 @@ function buildSphere() {
     ).normalize();
 
     const pair = PAIRS[a];
-
     let prev = root;
-    let nodeA = null, nodeB = null;
 
-    // Nodes along +direction (emotion A at tip)
     for (let i=1; i<=NODES_PER_AXIS; i++) {
       const t    = i/NODES_PER_AXIS;
       const dist = AXIS_LEN * Math.pow(t, 0.82);
       const pos  = dir.clone().multiplyScalar(dist);
-      const isAnchor = (i === NODES_PER_AXIS);
-      const emotion  = isAnchor ? pair.a : null;
-      const n = new Node(pos, i, emotion);
+      const n    = new Node(pos, i, i===NODES_PER_AXIS ? pair.a : null);
       n.distanceFromRoot = dist;
       nodes.push(n);
       prev.connect(n, 1.0 - t*0.3);
       prev = n;
-      if (isAnchor) nodeA = n;
+      if (i===NODES_PER_AXIS) axisEndNodes.push(n);
     }
 
-    // Nodes along -direction (emotion B at tip)
     prev = root;
     for (let i=1; i<=NODES_PER_AXIS; i++) {
       const t    = i/NODES_PER_AXIS;
       const dist = AXIS_LEN * Math.pow(t, 0.82);
       const pos  = dir.clone().multiplyScalar(-dist);
-      const isAnchor = (i === NODES_PER_AXIS);
-      const emotion  = isAnchor ? pair.b : null;
-      const n = new Node(pos, i, emotion);
+      const n    = new Node(pos, i, i===NODES_PER_AXIS ? pair.b : null);
       n.distanceFromRoot = dist;
       nodes.push(n);
       prev.connect(n, 1.0 - t*0.3);
       prev = n;
-      if (isAnchor) nodeB = n;
+      if (i===NODES_PER_AXIS) axisEndNodes.push(n);
     }
-
-    axisEnds.push({ nodeA, nodeB });
-    axisEndNodes.push(nodeA, nodeB);
   }
 
-  // Concentric rings
   const ringDists = [5, 10, 15];
-  const rings = [];
   for (const rd of ringDists) {
     const count = Math.floor(rd * 2.2);
     const ring  = [];
@@ -366,16 +372,11 @@ function buildSphere() {
       nodes.push(n);
       ring.push(n);
     }
-    rings.push(ring);
     for (let i=0; i<ring.length; i++) ring[i].connect(ring[(i+1)%ring.length], 0.65);
-  }
-
-  // Connect rings to nearest axis nodes
-  for (const ring of rings) {
     for (const rn of ring) {
       let closest=null, minD=Infinity;
       for (const n of nodes) {
-        if (n===root||n===rn) continue;
+        if (n===rn) continue;
         const d = rn.position.distanceTo(n.position);
         if (d<minD) { minD=d; closest=n; }
       }
@@ -383,7 +384,6 @@ function buildSphere() {
     }
   }
 
-  // Cross bridges between axis endpoints
   for (let i=0; i<axisEndNodes.length; i++) {
     const a = axisEndNodes[i];
     const b = axisEndNodes[(i+3)%axisEndNodes.length];
@@ -394,28 +394,13 @@ function buildSphere() {
       THREE.MathUtils.randFloatSpread(2.5)
     ));
     const bridge = new Node(mid, 4);
-    bridge.distanceFromRoot = root.position.distanceTo(mid);
+    bridge.distanceFromRoot = new THREE.Vector3().distanceTo(mid);
     nodes.push(bridge);
     a.connect(bridge, 0.45);
     bridge.connect(b, 0.45);
   }
 
   return { nodes, root, axisEndNodes };
-}
-
-// ─── CSS2D labels for anchor emotion nodes ────────────────────────────────────
-function createLabel(node) {
-  const em = node.emotion;
-  const div = document.createElement('div');
-  div.className = `emotion-label ${em.quadrant}`;
-  const nameEl = document.createElement('span');
-  nameEl.className = 'name';
-  nameEl.textContent = em.name;
-  div.appendChild(nameEl);
-  const label = new CSS2DObject(div);
-  label.position.set(0, 0.6, 0);
-  node._threeObj && node._threeObj.add(label);
-  return { label, div };
 }
 
 // ─── Build Three.js geometry ──────────────────────────────────────────────────
@@ -425,9 +410,8 @@ let connMesh       = null;
 let pulseIntensities = null;
 let connectionPairs  = [];
 let nodeObjects      = [];
-let labelObjects     = []; // { node, labelCSS2D, div }
+let labelObjects     = [];
 
-// Dummy group to attach labels — each anchor node gets a group at its position
 const labelGroups = new THREE.Group();
 scene.add(labelGroups);
 
@@ -439,10 +423,9 @@ function buildGeometry() {
   labelGroups.clear();
   labelObjects = [];
 
-  nodeObjects       = network.nodes;
-  pulseIntensities  = new Float32Array(nodeObjects.length);
+  nodeObjects      = network.nodes;
+  pulseIntensities = new Float32Array(nodeObjects.length);
 
-  // node geometry buffers
   const N    = nodeObjects.length;
   const pos  = new Float32Array(N*3);
   const sz   = new Float32Array(N);
@@ -472,7 +455,6 @@ function buildGeometry() {
     col[i*3+1] = c.g;
     col[i*3+2] = c.b;
 
-    // CSS2D label for anchor nodes
     if (n.emotion) {
       const grp = new THREE.Group();
       grp.position.copy(n.position);
@@ -482,8 +464,8 @@ function buildGeometry() {
       const div = document.createElement('div');
       div.className = `emotion-label ${em.quadrant}`;
       const nameEl = document.createElement('span');
-      nameEl.className = 'name';
-      nameEl.textContent = em.name;
+      nameEl.className = 'name' + (em.dual ? ' dual-pair' : '');
+      nameEl.textContent = em.name + (em.dual ? ' ×2' : '');
       div.appendChild(nameEl);
 
       const labelCSS = new CSS2DObject(div);
@@ -544,7 +526,6 @@ function buildGeometry() {
   }));
   scene.add(nodesMesh);
 
-  // connection buffers
   const seen = new Set();
   connectionPairs = [];
   nodeObjects.forEach((n,ni) => {
@@ -559,7 +540,7 @@ function buildGeometry() {
     });
   });
 
-  const TV  = connectionPairs.length * SEGS;
+  const TV     = connectionPairs.length * SEGS;
   const cPos   = new Float32Array(TV*3);
   const cCol   = new Float32Array(TV*3);
   const cStr   = new Float32Array(TV);
@@ -574,9 +555,9 @@ function buildGeometry() {
       cPos[idx*3]   = a.x+(b.x-a.x)*t;
       cPos[idx*3+1] = a.y+(b.y-a.y)*t;
       cPos[idx*3+2] = a.z+(b.z-a.z)*t;
-      cCol[idx*3]   = 0.031; cCol[idx*3+1]=0.32; cCol[idx*3+2]=0.42;
-      cStr[idx]     = pair.strength;
-      cPulse[idx]   = 0;
+      cCol[idx*3]=0.031; cCol[idx*3+1]=0.32; cCol[idx*3+2]=0.42;
+      cStr[idx]   = pair.strength;
+      cPulse[idx] = 0;
     }
   });
 
@@ -601,11 +582,8 @@ function buildGeometry() {
       varying   vec3  vColor;
       varying   float vStr;
       varying   float vPulse;
-      varying   float vT;
       void main(){
         vColor=aColor; vStr=aStr; vPulse=aPulse;
-        // recover t from position index is not trivial; pass via attribute instead
-        vT=0.5;
         gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
       }
     `,
@@ -613,12 +591,10 @@ function buildGeometry() {
       varying vec3  vColor;
       varying float vStr;
       varying float vPulse;
-      uniform float uTime;
       void main(){
         float alpha = (0.17+0.1*vStr);
-        vec3 base   = vColor;
         vec3 pulse  = vec3(0.976,0.451,0.086);
-        vec3 fc     = mix(base,pulse,vPulse);
+        vec3 fc     = mix(vColor,pulse,vPulse);
         alpha       = mix(alpha,min(1.0,alpha*2.6),vPulse);
         gl_FragColor= vec4(fc,alpha);
       }
@@ -653,9 +629,9 @@ function firePulse(srcIdx) {
     for (const conn of nodeObjects[curr].connections) {
       const ni = nodeObjects.indexOf(conn.node);
       if (ni===-1||visited[ni]) continue;
-      visited[ni]   = 1;
-      depth[ni]     = depth[curr]+1;
-      hopTimes[ni]  = hopTimes[curr]+PULSE_SPEED;
+      visited[ni]  = 1;
+      depth[ni]    = depth[curr]+1;
+      hopTimes[ni] = hopTimes[curr]+PULSE_SPEED;
       queue.push(ni);
     }
   }
@@ -704,29 +680,34 @@ function updatePulse() {
 }
 
 // ─── Tooltip + hover ─────────────────────────────────────────────────────────
-const tooltip    = document.getElementById('tooltip');
-const ttName     = document.getElementById('tt-name');
-const ttF        = document.getElementById('tt-f');
-const ttD        = document.getElementById('tt-d');
-const ttQ        = document.getElementById('tt-q');
-let hoveredIdx   = -1;
+const tooltip  = document.getElementById('tooltip');
+const ttName   = document.getElementById('tt-name');
+const ttDual   = document.getElementById('tt-dual');
+const ttF      = document.getElementById('tt-f');
+const ttN      = document.getElementById('tt-n');
+const ttB      = document.getElementById('tt-b');
+const ttD      = document.getElementById('tt-d');
+const ttP      = document.getElementById('tt-p');
+const ttQ      = document.getElementById('tt-q');
 
 function showTooltip(idx, ex, ey) {
   const em = nodeObjects[idx].emotion;
   if (!em) { tooltip.style.display='none'; return; }
-  ttName.textContent = em.name;
-  ttF.textContent    = em.F;
-  ttD.textContent    = em.D;
-  ttQ.textContent    = QUAD_LABEL[em.quadrant];
-  tooltip.className  = em.quadrant;
-  tooltip.style.display = 'block';
-  tooltip.style.left    = (ex+16)+'px';
-  tooltip.style.top     = (ey-10)+'px';
+  ttName.textContent        = em.name;
+  ttDual.style.display      = em.dual ? 'block' : 'none';
+  ttF.textContent           = em.F;
+  ttN.textContent           = em.N;
+  ttB.textContent           = 'b' + em.b;
+  ttD.textContent           = em.D;
+  ttP.textContent           = em.P;
+  ttQ.textContent           = QUAD_LABEL[em.quadrant];
+  tooltip.className         = em.quadrant;
+  tooltip.style.display     = 'block';
+  tooltip.style.left        = (ex+16)+'px';
+  tooltip.style.top         = (ey-10)+'px';
 }
 
 canvas.addEventListener('pointermove', e => {
-  const mx = (e.clientX/innerWidth)*2-1;
-  const my = -(e.clientY/innerHeight)*2+1;
   const posAttr = nodesMesh.geometry.getAttribute('position');
   const tmp = new THREE.Vector3();
   let bestIdx=-1, bestD=Infinity;
@@ -744,7 +725,6 @@ canvas.addEventListener('pointermove', e => {
     tooltip.style.display='none';
     canvas.style.cursor='grab';
   }
-  hoveredIdx=bestIdx;
 });
 
 // ─── Click: fire pulse ────────────────────────────────────────────────────────
