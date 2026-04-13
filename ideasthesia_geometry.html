@@ -27,7 +27,7 @@ body {
   color: var(--text); background: var(--bg);
   line-height: 1.72; -webkit-font-smoothing: antialiased;
 }
-.page { max-width: 44rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; padding-top: calc(3.5rem + 42px); }
+.page { max-width: 44rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
 header {
   margin-bottom: 3rem; padding-bottom: 2rem;
   border-bottom: 3px solid var(--teal);
@@ -95,24 +95,16 @@ footer { margin-top: 4rem; padding-top: 1.5rem;
 </style>
 </head>
 <body>
-  <nav id="site-nav" style="position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,0.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(8,145,178,0.18);font-family:'Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;font-size:0.82rem;height:38px;">
-  <a href="ideasthesia_geometry.html" style="padding:0 20px;height:38px;line-height:38px;color:#0891B2;text-decoration:none;display:inline-block;border-right:1px solid rgba(8,145,178,0.18);">Paper</a>
-  <a href="emotion_network.html" style="padding:0 20px;height:38px;line-height:38px;color:#0891B2;text-decoration:none;display:inline-block;border-right:1px solid rgba(8,145,178,0.18);">Network</a>
-  <a href="emotion_field.html" style="padding:0 20px;height:38px;line-height:38px;color:#0891B2;text-decoration:none;display:inline-block;">Field</a>
-<a href="postcard.html" style="padding:0 20px;height:38px;line-height:38px;color:#0891B2;text-decoration:none;display:inline-block;">Postcard</a>
-  </nav>
 <div class="page">
 
 <header>
   <h1>Ideasthesia as Geometry</h1>
   <div class="subtitle">A Notation System for the Qualitative Dynamical Structure of Representations</div>
   <div class="authors">
-    A. Shirs &amp; Claude (Anthropic) — Draft v0.5.1, April 2026
+    A. Shirs &amp; Claude (Anthropic) — Draft v0.6, April 2026
     <div class="nav-links">
-      <a href="postcard.html">↗ Postcard: the testable prediction</a>
       <a href="emotion_network.html">↗ Emotion Network (interactive)</a>
-      <a href="emotion_field.html">↗ Emotion Field (predictive claim, visualised)</a>
-      <a href="https://transformer-circuits.pub/2026/emotions/index.html" target="_blank" rel="noopener">↗ Sofroniew et al. (2026): Emotion Concepts in LLMs — Anthropic research this work draws on</a>
+      <a href="https://transformer-circuits.pub/2026/emotions/index.html" target="_blank" rel="noopener">↗ Anthropic (2026): Emotion Concepts in LLMs</a>
     </div>
   </div>
 </header>
@@ -184,6 +176,8 @@ footer { margin-top: 4rem; padding-top: 1.5rem;
 <h3>Exclusion Rules for Blinded Coding</h3>
 <p>Assign the simplest value that fits. Do not assign a higher-complexity value if a simpler one suffices. <strong>Compound values (e.g. point→vector, stable/recursive) are not permitted.</strong> Assign the dominant or activated form only.</p>
 
+<p><strong>Temporal-frame convention:</strong> Code the dominant attractor state, not the approach trajectory or the decay. The attractor is the phase the emotion occupies once it has stabilised, however briefly. This convention is the upstream fix for two recurring problems: the TERRIFIED disagreement (F:point vs F:convergence) and compound D values both traced to coders encoding two temporal phases at once. TERRIFIED resolves unambiguously to F:point (the frozen, locked attractor); F:convergence describes the onset trajectory, which is not coded. A coder who knows they are coding the attractor assigns a single D value rather than reaching for compounds. If onset dynamics are independently informative for a research question, add a second-pass annotation layer rather than overloading the primary tuple.</p>
+
 <p><strong>Form</strong></p>
 <ul>
   <li><strong>point</strong> — No directional component, no extension. Activation bounded and non-oriented. <em>Exclusion: if any directional pull or asymmetry exists, not a point.</em></li>
@@ -192,6 +186,21 @@ footer { margin-top: 4rem; padding-top: 1.5rem;
   <li><strong>convergence</strong> — Two or more distinct trajectories meeting at a shared point. Requires 2 distinguishable incoming directions. <em>Exclusion: single deceleration to rest = collapse, not convergence.</em></li>
   <li><strong>collapse</strong> — Reduction to a lower-dimensional form. Extension terminates without return or resolution. <em>Exclusion: if terminus is stable and bounded from the start, not collapse.</em></li>
 </ul>
+
+<p><strong>F vocabulary closure:</strong> The five Form values are exhaustive given low-dimensional phase space. The Poincaré-Bendixson theorem constrains omega-limit sets in bounded, low-dimensional phase space to three kinds: equilibria, periodic orbits, and heteroclinic/homoclinic connections. Adding transient directed motion and degenerate contraction gives a complete classification of qualitative trajectory types:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>F value</th><th>Dynamical primitive</th><th>Qualitative description</th></tr></thead>
+  <tbody>
+    <tr><td><strong>point</strong></td><td>Equilibrium (fixed point)</td><td>Rest. No motion.</td></tr>
+    <tr><td><strong>vector</strong></td><td>Transient directed orbit</td><td>Directed motion through phase space, not returning.</td></tr>
+    <tr><td><strong>loop</strong></td><td>Periodic orbit (limit cycle)</td><td>Returns to origin, forming a closed curve.</td></tr>
+    <tr><td><strong>convergence</strong></td><td>Heteroclinic connection</td><td>Multiple distinct trajectories meeting at a shared attractor or saddle.</td></tr>
+    <tr><td><strong>collapse</strong></td><td>Degenerate contraction</td><td>Effective dimensionality reduces; manifold compresses to a lower-dimensional subspace.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>What this excludes: quasi-periodic orbits (require ≥3D; the schema codes low-dimensional phenomenological shape) and chaotic trajectories (excluded by Poincaré-Bendixson in 2D; in higher dimensions, captured by D:recursive or D:drifting, not by F). The closure is conditional on low-dimensionality — itself an empirical claim that predictions P8 and P9 test.</p>
 
 <p><strong>Neighbourhood</strong></p>
 <ul>
@@ -250,9 +259,12 @@ footer { margin-top: 4rem; padding-top: 1.5rem;
     <tr><td>joy vs excitement</td><td>pos</td><td>high</td><td>loop vs vector</td><td>clustered·b∅ vs clustered·b∅</td><td>recursive vs drifting</td><td>F and D</td></tr>
     <tr><td>content vs peaceful</td><td>pos</td><td>low</td><td>point vs point</td><td>isolated·b∅ vs gradient·b∅</td><td>stable vs stable</td><td>N only</td></tr>
     <tr><td>desperation vs fear</td><td>neg</td><td>high</td><td>collapse vs vector</td><td>contrastive·b# vs clustered·b~</td><td>terminal vs drifting</td><td>F and D</td></tr>
-    <tr><td>grief vs sadness</td><td>neg</td><td>low</td><td>loop vs point</td><td>clustered·b~ vs isolated·b∅</td><td>recursive vs stable</td><td>F, N and D</td></tr>
+    <tr><td>grief vs sadness</td><td>neg</td><td>low</td><td>loop vs point</td><td>clustered·b~ vs isolated·b∅</td><td>recursive vs drifting</td><td>F, N and D</td></tr>
   </tbody>
 </table>
+</div>
+<div class="note">
+  <strong>Compound values and attractor coding:</strong> Under the temporal-frame convention, JOY is coded D:recursive (the loop is the attractor state; persistence is implied by attractor coding, not a separate qualifier) and SADNESS is coded D:drifting (slow dissipation without return — the dominant attractor behaviour, not a stable resting point). The former compound values stable-recursive and stable-drifting are retired. Any emotion that appears to require a compound D value even under attractor coding should be flagged for post-trial analysis, not silently recoded — residual compounds are potential evidence of D-axis structure that needs examination.
 </div>
 <p>Five of six pairs separate on both Form and Dynamics. One (content/peaceful) shares the same Form (F:point) and Dynamics (D:stable), separating on Neighbourhood alone: content is N:isolated·b∅ (self-contained, no boundary needed); peaceful is N:gradient·b∅ (diffusing into surroundings, no direction, no return). None are distinguishable by valence and arousal alone.</p>
 <p>The desperation/fear separation is particularly significant in light of Anthropic's causal steering data. Desperation produces terminal action (reward hacking, blackmail) because D:terminal has no continuation structure — there is no exit from the representational state. Fear moves because D:drifting does. Valence/arousal gives the same reading for both. The tuple gives a mechanism.</p>
@@ -389,7 +401,7 @@ footer { margin-top: 4rem; padding-top: 1.5rem;
 </div>
 
 <footer>
-  <p>Draft v0.5.1 — April 2026. Working paper, not a peer-reviewed publication. All epistemic status claims are stated explicitly in the text. The invitation stands: test it on your end.</p>
+  <p>Draft v0.6 — April 2026. Working paper, not a peer-reviewed publication. All epistemic status claims are stated explicitly in the text. The invitation stands: test it on your end.</p>
 </footer>
 
 </div>
