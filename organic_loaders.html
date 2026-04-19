@@ -209,16 +209,17 @@ h2 {
 }
 .ld2-core { transform-origin: center; animation: dot-tick 2s ease-in-out infinite; }
 
-/* 3. vector · drifting */
-@keyframes travel {
+/* 3. vector · drifting — a single particle moving along an axis with a varying pace,
+   fading as it goes. Not recycling; just drifting. */
+@keyframes drift-along {
   0%   { transform: translateX(-46px); opacity: 0; }
-  10%  { opacity: 0.9; }
-  80%  { opacity: 0.9; }
+  10%  { opacity: 0.85; }
+  35%  { transform: translateX(-18px); }
+  55%  { transform: translateX(-4px); opacity: 0.9; }
+  80%  { transform: translateX(28px); opacity: 0.55; }
   100% { transform: translateX(46px); opacity: 0; }
 }
-.ld3-p { animation: travel 1.8s linear infinite; transform-origin: center; }
-.ld3-p.p2 { animation-delay: 0.6s; }
-.ld3-p.p3 { animation-delay: 1.2s; }
+.ld3-p { animation: drift-along 3.2s cubic-bezier(.4,.1,.6,.9) infinite; transform-origin: center; }
 
 /* 4. vector · terminal */
 @keyframes fire-terminal {
@@ -397,13 +398,13 @@ footer {
 <header class="paper-head">
   <span class="label">Applied Notation · Addendum</span>
   <h1>Organic Loaders</h1>
-  <p class="subtitle">A catalogue of loading indicators derived directly from the F×D tuples of the ideasthesia notation. Each loader is an honest expression of one Form and one Dynamics — not a decoration, not a metaphor.</p>
+  <p class="subtitle">A selection of loading indicators derived directly from the F×D tuples of the ideasthesia notation. Each loader is an honest expression of one Form and one Dynamics — not a decoration, not a metaphor.</p>
   <p class="authors">A. Shirs &amp; Claude (Anthropic) — April 2026</p>
 </header>
 
 <section class="intro">
   <p>The motivation is plain: most loading indicators are ornaments. They spin because spinning is what loaders do. The F×D schema gives a different starting point — it asks what <em>kind</em> of waiting is actually happening. A query that will return shortly is not the same shape of time as a long computation that may collapse. A process that returns to its origin (polling) is not the same shape as one that reaches forward (streaming).</p>
-  <p>Each cell below pairs a Form with a Dynamics and lets that tuple dictate the motion. The geometry is doing the work. The captions are notation, not marketing.</p>
+  <p>Each cell below pairs a Form with a Dynamics and lets that tuple dictate the motion. The geometry is doing the work. The captions are notation, not marketing. N (neighbourhood) is not rendered here — a single loader in isolation has nothing to be neighbouring — so the captions carry F and D only. Nine pairs are shown; the full F×D space has more.</p>
 </section>
 
 <h2>Gallery</h2>
@@ -421,8 +422,7 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">point</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">stable</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">isolated</span>
+      <span class="k">D</span>:<span class="v">stable</span>
     </div>
     <div class="descr">Bounded, non-directional. Holds its place while it waits. No suggestion of progress, only presence.</div>
     <div class="context">
@@ -444,8 +444,7 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">point</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">recursive</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">gradient</span>
+      <span class="k">D</span>:<span class="v">recursive</span>
     </div>
     <div class="descr">Emits, returns, emits again. A polling loop made visible. The origin never moves; only the memory of it diffuses.</div>
     <div class="context">
@@ -464,17 +463,14 @@ footer {
     <div class="stage">
       <svg viewBox="-60 -30 120 60" aria-hidden="true">
         <line class="ink faint" x1="-50" y1="0" x2="50" y2="0" stroke-width="1" stroke-dasharray="2 3"/>
-        <circle class="ink fill ld3-p"     cx="0" cy="0" r="3.5"/>
-        <circle class="ink fill ld3-p p2"  cx="0" cy="0" r="3.5"/>
-        <circle class="ink fill ld3-p p3"  cx="0" cy="0" r="3.5"/>
+        <circle class="ink fill ld3-p" cx="0" cy="0" r="3.5"/>
       </svg>
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">vector</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">drifting</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">clustered</span>
+      <span class="k">D</span>:<span class="v">drifting</span>
     </div>
-    <div class="descr">Directed motion that does not close. Particles travel an axis and recycle. Suggests streaming, not arrival.</div>
+    <div class="descr">A single particle traverses the axis with a varying pace, fading at both ends. Directed but not uniform; drifts rather than steps.</div>
     <div class="context">
       <span class="mini"><svg viewBox="-12 -12 24 24"><g class="mini-spin"><path class="ink" d="M 0 -7 A 7 7 0 0 1 7 0" stroke-width="2" stroke-linecap="round"/></g></svg></span>
       <span class="msg">streaming response…</span>
@@ -502,8 +498,7 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">vector</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v term">terminal</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">contrastive</span>
+      <span class="k">D</span>:<span class="v term">terminal</span>
     </div>
     <div class="descr">Discrete dispatches. Each arrow reaches and ends — no continuation, no return. Accents the orange: terminal dynamics are always orange here.</div>
     <div class="context">
@@ -530,10 +525,9 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">loop</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">recursive</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">clustered</span>
+      <span class="k">D</span>:<span class="v">stable</span>
     </div>
-    <div class="descr">Three bodies on a shared orbit. Returns to origin each revolution. Familiar waiting-shape with honest notation underneath.</div>
+    <div class="descr">Three bodies on a shared orbit. The configuration holds — same radius, same cadence, no drift, no decay. A closed curve that keeps its shape.</div>
     <div class="context">
       <span class="mini"><svg viewBox="-12 -12 24 24"><g class="mini-spin">
         <circle class="ink fill" cx="8" cy="0" r="2"/>
@@ -552,8 +546,7 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">loop</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">drifting</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">gradient</span>
+      <span class="k">D</span>:<span class="v">drifting</span>
     </div>
     <div class="descr">A closed curve that rotates against itself — its phase drifts while its shape holds. Progress that doesn't resolve cleanly.</div>
     <div class="context">
@@ -577,8 +570,7 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">convergence</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">stable</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">contrastive</span>
+      <span class="k">D</span>:<span class="v">stable</span>
     </div>
     <div class="descr">Several processes arriving at a shared result. The attractor holds; the streams keep coming. Natural fit for joins or parallel fetches.</div>
     <div class="context">
@@ -604,8 +596,7 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">collapse</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v term">terminal</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">contrastive</span>
+      <span class="k">D</span>:<span class="v term">terminal</span>
     </div>
     <div class="descr">A ring contracts to a point, releases, and begins again. The honest shape of a process that ends without continuing. Terminal accent.</div>
     <div class="context">
@@ -626,10 +617,9 @@ footer {
     </div>
     <div class="tuple">
       <span class="k">F</span>:<span class="v">collapse</span><span class="sep">·</span>
-      <span class="k">D</span>:<span class="v">drifting</span><span class="sep">·</span>
-      <span class="k">N</span>:<span class="v">clustered</span>
+      <span class="k">D</span>:<span class="v">drifting</span>
     </div>
-    <div class="descr">Particles drift inward on noise, not a straight line. Slow, chaotic contraction. For long waits where the user should feel time passing, not urgency.</div>
+    <div class="descr">Particles drift inward with small lateral wander — no sharp path, no hard arrival. A slow contraction for waits where the user should feel time passing.</div>
     <div class="context">
       <span class="mini"><svg viewBox="-12 -12 24 24" id="ld9-mini"></svg></span>
       <span class="msg">compacting…</span>
